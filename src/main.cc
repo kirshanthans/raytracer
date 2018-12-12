@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cfloat>
 #include "sphere.h"
+#include "triangle.h"
 #include "hitablelist.h"
 #include "camera.h"
 #include "material.h"
@@ -51,8 +52,7 @@ hitable *random_scene()
                 }
                 else if (choose_mat < 0.95)
                 { // metal
-                    list[i++] = new sphere(center, 0.2,
-                                           new metal(vec3(0.5 * (1 + drand48()), 0.5 * (1 + drand48()), 0.5 * (1 + drand48())), 0.5 * drand48()));
+                    list[i++] = new sphere(center, 0.2, new metal(vec3(0.5 * (1 + drand48()), 0.5 * (1 + drand48()), 0.5 * (1 + drand48())), 0.5 * drand48()));
                 }
                 else
                 { // glass
@@ -69,6 +69,28 @@ hitable *random_scene()
     return new hitable_list(list, i);
 }
 
+hitable *cube_scene()
+{
+    int n = 12;
+    hitable **list = new hitable *[n];
+    int i = 0;
+
+    list[i++] = new triangle(vec3(1, 0, -1), vec3(1, 2, -1), vec3(1, 2, 1), vec3(1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(1, 2, 1), vec3(1, 0, 1), vec3(1, 0, -1), vec3(1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(-1, 0, -1), vec3(-1, 2, -1), vec3(-1, 2, 1), vec3(-1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(-1, 2, 1), vec3(-1, 0, 1), vec3(-1, 0, -1), vec3(-1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(1, 0, -1), vec3(1, 2, -1), vec3(-1, 2, -1), vec3(0, 0, 1), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(-1, 2, -1), vec3(-1, 0, -1), vec3(1, 0, -1), vec3(0, 0, 1), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(1, 0, 1), vec3(1, 2, 1), vec3(-1, 2, 1), vec3(0, 0, -1), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(-1, 2, 1), vec3(-1, 0, 1), vec3(1, 0, 1), vec3(0, 0, -1), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(1, 2, -1), vec3(1, 2, 1), vec3(-1, 2, 1), vec3(0, 1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(-1, 2, 1), vec3(-1, 2, -1), vec3(1, 2, -1), vec3(0, 1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(1, 0, -1), vec3(1, 0, 1), vec3(-1, 0, 1), vec3(0, -1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    list[i++] = new triangle(vec3(-1, 0, 1), vec3(-1, 0, -1), vec3(1, 0, -1), vec3(0, -1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    
+    return new hitable_list(list, i);
+}
+
 int main()
 {
     int nx = 1280;
@@ -79,7 +101,7 @@ int main()
          << nx << " " << ny << endl
          << 255 << endl;
     //world
-    hitable *world = random_scene();
+    hitable *world = cube_scene();
     //camera
     vec3 lookfrom(13, 2, 3);
     vec3 lookat(0, 0, 0);

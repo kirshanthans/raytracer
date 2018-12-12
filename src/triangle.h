@@ -17,7 +17,6 @@ class triangle : public hitable {
 
 bool triangle::hit(const ray &r, float t_min, float t_max, hit_record &rec) const
 {
-    //Möller–Trumbore intersection algorithm
     vec3 e1, e2, h, s, q;
     float a, f, u, v;
     float epsilon = 0.0000001;
@@ -46,7 +45,7 @@ bool triangle::hit(const ray &r, float t_min, float t_max, hit_record &rec) cons
     {
         rec.t = temp;
         rec.p = r.point_at_parameter(rec.t);
-        rec.normal = vnorm;
+        rec.normal = unit_vector(vnorm);
         rec.mat_ptr = mat_ptr;
         return true;
     }
