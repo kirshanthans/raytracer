@@ -32,9 +32,26 @@ vec3 color(const ray &r, hitable *world, int depth)
     }
 }
 
-hitable *random_scene()
+void add_cube(vec3 cen, float r, vec3 un, vec3 vn, vec3 wn, material *m, hitable **list, int *i)
 {
-    int n = 500;
+    list[(*i)++] = new triangle(cen+r*(un-vn+wn),  cen+r*(un+vn+wn),  cen+r*(un+vn-wn),  un,  m);
+    list[(*i)++] = new triangle(cen+r*(un+vn-wn),  cen+r*(un-vn-wn),  cen+r*(un-vn+wn),  un,  m);
+    list[(*i)++] = new triangle(cen+r*(-un-vn+wn), cen+r*(-un+vn+wn), cen+r*(-un+vn-wn), -un, m);
+    list[(*i)++] = new triangle(cen+r*(-un+vn-wn), cen+r*(-un-vn-wn), cen+r*(-un-vn+wn), -un, m);
+    list[(*i)++] = new triangle(cen+r*(un+vn+wn),  cen+r*(-un+vn+wn), cen+r*(-un+vn-wn), vn,  m);
+    list[(*i)++] = new triangle(cen+r*(-un+vn-wn), cen+r*(un+vn-wn),  cen+r*(un+vn+wn),  vn,  m);
+    list[(*i)++] = new triangle(cen+r*(un-vn+wn),  cen+r*(-un-vn+wn), cen+r*(-un-vn-wn), -vn, m);
+    list[(*i)++] = new triangle(cen+r*(-un-vn-wn), cen+r*(un-vn-wn),  cen+r*(un-vn+wn),  -vn, m);
+    list[(*i)++] = new triangle(cen+r*(un-vn+wn),  cen+r*(-un-vn+wn), cen+r*(-un+vn+wn), wn,  m);
+    list[(*i)++] = new triangle(cen+r*(-un+vn+wn), cen+r*(un+vn+wn),  cen+r*(un-vn+wn),  wn,  m);
+    list[(*i)++] = new triangle(cen+r*(un-vn-wn),  cen+r*(-un-vn-wn), cen+r*(-un+vn-wn), -wn, m);
+    list[(*i)++] = new triangle(cen+r*(-un+vn-wn), cen+r*(un+vn-wn),  cen+r*(un-vn-wn),  -wn, m);
+    return;
+}
+
+hitable *random_scene(bool balls)
+{
+    int n = 600;
     hitable **list = new hitable *[n + 1];
     list[0] = new sphere(vec3(0, -1000, 0), 1000, new lambertian(vec3(0.5, 0.5, 0.5)));
     int i = 1;
@@ -61,32 +78,31 @@ hitable *random_scene()
             }
         }
     }
-
-    list[i++] = new sphere(vec3(0, 1, 0), 1.0, new dielectric(1.5));
-    list[i++] = new sphere(vec3(-4, 1, 0), 1.0, new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new sphere(vec3(4, 1, 0), 1.0, new metal(vec3(0.7, 0.6, 0.5), 0.0));
+    
+    if (balls)
+    {
+        list[i++] = new sphere(vec3(0, 1, 0), 1.0, new dielectric(1.5));
+        list[i++] = new sphere(vec3(-4, 1, 0), 1.0, new lambertian(vec3(0.4, 0.2, 0.1)));
+        list[i++] = new sphere(vec3(4, 1, 0), 1.0, new metal(vec3(0.7, 0.6, 0.5), 0.0));
+    }
+    else {
+        add_cube(vec3(0,1,0), 0.8, vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), new dielectric(1.5), list, &i);
+        add_cube(vec3(-4,1,0), 0.8, vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), new lambertian(vec3(0.4, 0.2, 0.1)), list, &i);
+        add_cube(vec3(4,1,0), 0.8, vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), new metal(vec3(0.7, 0.6, 0.5), 0.0), list, &i);
+    }
 
     return new hitable_list(list, i);
 }
 
 hitable *cube_scene()
 {
-    int n = 12;
+    int n = 40;
     hitable **list = new hitable *[n];
     int i = 0;
 
-    list[i++] = new triangle(vec3(1, 0, -1), vec3(1, 2, -1), vec3(1, 2, 1), vec3(1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(1, 2, 1), vec3(1, 0, 1), vec3(1, 0, -1), vec3(1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(-1, 0, -1), vec3(-1, 2, -1), vec3(-1, 2, 1), vec3(-1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(-1, 2, 1), vec3(-1, 0, 1), vec3(-1, 0, -1), vec3(-1, 0, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(1, 0, -1), vec3(1, 2, -1), vec3(-1, 2, -1), vec3(0, 0, 1), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(-1, 2, -1), vec3(-1, 0, -1), vec3(1, 0, -1), vec3(0, 0, 1), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(1, 0, 1), vec3(1, 2, 1), vec3(-1, 2, 1), vec3(0, 0, -1), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(-1, 2, 1), vec3(-1, 0, 1), vec3(1, 0, 1), vec3(0, 0, -1), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(1, 2, -1), vec3(1, 2, 1), vec3(-1, 2, 1), vec3(0, 1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(-1, 2, 1), vec3(-1, 2, -1), vec3(1, 2, -1), vec3(0, 1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(1, 0, -1), vec3(1, 0, 1), vec3(-1, 0, 1), vec3(0, -1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
-    list[i++] = new triangle(vec3(-1, 0, 1), vec3(-1, 0, -1), vec3(1, 0, -1), vec3(0, -1, 0), new lambertian(vec3(0.4, 0.2, 0.1)));
+    add_cube(vec3(0,1,0), 1.0, vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), new dielectric(1.5), list, &i);
+    add_cube(vec3(-4,1,0), 1.0, vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), new lambertian(vec3(0.4, 0.2, 0.1)), list, &i);
+    add_cube(vec3(4,1,0), 1.0, vec3(1,0,0), vec3(0,1,0), vec3(0,0,1), new metal(vec3(0.7, 0.6, 0.5), 0.0), list, &i);
     
     return new hitable_list(list, i);
 }
@@ -101,7 +117,7 @@ int main()
          << nx << " " << ny << endl
          << 255 << endl;
     //world
-    hitable *world = cube_scene();
+    hitable *world = random_scene(false);
     //camera
     vec3 lookfrom(13, 2, 3);
     vec3 lookat(0, 0, 0);
